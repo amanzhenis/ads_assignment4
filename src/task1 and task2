@@ -1,0 +1,170 @@
+
+  Assignment 4 – Graphs
+  Task 1: DFS Trace  |  Task 2: BFS Trace
+
+
+GRAPH – Adjacency Lists
+-----------------------
+A : C  B  D
+B : A  C  E  G
+C : A  B  D
+D : C  A
+E : G  F  B
+F : G  E
+G : F  B
+
+TASK 1 – Depth-First Search (source = A)
+  Reference: Sedgewick & Wayne, Algorithms 4th ed., p. 537
+
+
+The DFS algorithm (Sedgewick) maintains a boolean array marked[]
+and an integer array edgeTo[].  When a vertex v is first reached,
+marked[v] is set to true and dfs(v) recurses through v's adjacency
+list in the order given, skipping any already-marked neighbour.
+
+--- Recursive trace ---
+
+dfs(A)
+  marked[A] = true                        → Visit A
+  Adjacency list of A: C, B, D
+  ├─ C not marked → edgeTo[C] = A
+  │  dfs(C)
+  │    marked[C] = true                   → Visit C
+  │    Adjacency list of C: A, B, D
+  │    ├─ A marked → skip
+  │    ├─ B not marked → edgeTo[B] = C
+  │    │  dfs(B)
+  │    │    marked[B] = true              → Visit B
+  │    │    Adjacency list of B: A, C, E, G
+  │    │    ├─ A marked → skip
+  │    │    ├─ C marked → skip
+  │    │    ├─ E not marked → edgeTo[E] = B
+  │    │    │  dfs(E)
+  │    │    │    marked[E] = true         → Visit E
+  │    │    │    Adjacency list of E: G, F, B
+  │    │    │    ├─ G not marked → edgeTo[G] = E
+  │    │    │    │  dfs(G)
+  │    │    │    │    marked[G] = true    → Visit G
+  │    │    │    │    Adjacency list of G: F, B
+  │    │    │    │    ├─ F not marked → edgeTo[F] = G
+  │    │    │    │    │  dfs(F)
+  │    │    │    │    │    marked[F] = true  → Visit F
+  │    │    │    │    │    Adjacency list of F: G, E
+  │    │    │    │    │    ├─ G marked → skip
+  │    │    │    │    │    └─ E marked → skip
+  │    │    │    │    │  return from dfs(F)
+  │    │    │    │    └─ B marked → skip
+  │    │    │    │  return from dfs(G)
+  │    │    │    ├─ F marked → skip
+  │    │    │    └─ B marked → skip
+  │    │    │  return from dfs(E)
+  │    │    └─ G marked → skip
+  │    │  return from dfs(B)
+  │    └─ D not marked → edgeTo[D] = C
+  │       dfs(D)
+  │         marked[D] = true              → Visit D
+  │         Adjacency list of D: C, A
+  │         ├─ C marked → skip
+  │         └─ A marked → skip
+  │       return from dfs(D)
+  │  return from dfs(C)
+  ├─ B marked → skip
+  └─ D marked → skip
+  return from dfs(A)
+
+ DFS visit order
+  A → C → B → E → G → F → D
+
+ DFS Tree (edgeTo[]) 
+  A – C   (A discovered C)
+  C – B   (C discovered B)
+  B – E   (B discovered E)
+  E – G   (E discovered G)
+  G – F   (G discovered F)
+  C – D   (C discovered D)
+
+
+TASK 2 – Breadth-First Search (source = A)
+  Reference: Sedgewick & Wayne, Algorithms 4th ed., p. 539
+
+
+BFS uses a FIFO queue.  The source is enqueued and marked first;
+then the algorithm repeatedly dequeues a vertex v, inspects every
+neighbour w in v's adjacency list, and enqueues (and marks) each
+unmarked w, recording edgeTo[w] = v.
+
+Step-by-step trace
+
+Initialise:
+  Enqueue A, marked[A] = true
+  Queue: [A]
+  marked : {A}
+
+Step 1 – Dequeue A
+  Adjacency list of A: C, B, D
+    C not marked → marked[C]=true, edgeTo[C]=A, enqueue C
+    B not marked → marked[B]=true, edgeTo[B]=A, enqueue B
+    D not marked → marked[D]=true, edgeTo[D]=A, enqueue D
+  Queue: [C, B, D]
+  marked : {A, C, B, D}
+
+Step 2 – Dequeue C
+  Adjacency list of C: A, B, D
+    A marked → skip
+    B marked → skip
+    D marked → skip
+  Queue: [B, D]
+
+Step 3 – Dequeue B
+  Adjacency list of B: A, C, E, G
+    A marked → skip
+    C marked → skip
+    E not marked → marked[E]=true, edgeTo[E]=B, enqueue E
+    G not marked → marked[G]=true, edgeTo[G]=B, enqueue G
+  Queue: [D, E, G]
+  marked : {A, C, B, D, E, G}
+
+Step 4 – Dequeue D
+  Adjacency list of D: C, A
+    C marked → skip
+    A marked → skip
+  Queue: [E, G]
+
+Step 5 – Dequeue E
+  Adjacency list of E: G, F, B
+    G marked → skip
+    F not marked → marked[F]=true, edgeTo[F]=E, enqueue F
+    B marked → skip
+  Queue: [G, F]
+  marked : {A, C, B, D, E, G, F}
+
+Step 6 – Dequeue G
+  Adjacency list of G: F, B
+    F marked → skip
+    B marked → skip
+  Queue: [F]
+
+Step 7 – Dequeue F
+  Adjacency list of F: G, E
+    G marked → skip
+    E marked → skip
+  Queue: []  ← empty, BFS complete
+
+ BFS visit order (order vertices were first enqueued/marked)
+  A → C → B → D → E → G → F
+
+ BFS Tree (edgeTo[]) – shortest paths from A 
+  A – C   distTo[C] = 1
+  A – B   distTo[B] = 1
+  A – D   distTo[D] = 1
+  B – E   distTo[E] = 2
+  B – G   distTo[G] = 2
+  E – F   distTo[F] = 3
+
+  Shortest paths from A:
+    A → C          (length 1)
+    A → B          (length 1)
+    A → D          (length 1)
+    A → B → E      (length 2)
+    A → B → G      (length 2)
+    A → B → E → F  (length 3)
