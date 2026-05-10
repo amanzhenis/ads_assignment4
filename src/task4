@@ -1,0 +1,113 @@
+ Assignment 4 – Graphs
+  Task 4: Shortest Path – Edinburgh to Dundee (Dijkstra's)
+
+SCOTTISH ROAD NETWORK – Edge Weights (km / miles as given)
+The road network used is the standard Scottish cities graph
+commonly referenced in this course.  Edge weights represent
+road distances in miles between cities.
+
+Cities (nodes):
+  0 = Edinburgh
+  1 = Stirling
+  2 = Perth
+  3 = Dundee
+  4 = Glasgow
+  5 = Falkirk
+
+Weighted edges (undirected):
+  Edinburgh – Stirling  :  36 miles
+  Edinburgh – Falkirk   :  24 miles
+  Edinburgh – Glasgow   :  46 miles  (via M8 – not shortest route to Dundee)
+  Stirling  – Perth     :  35 miles
+  Stirling  – Falkirk   :  14 miles
+  Stirling  – Glasgow   :  28 miles
+  Perth     – Dundee    :  22 miles
+  Falkirk   – Glasgow   :  23 miles
+
+(Distances are approximations consistent with the textbook diagram.)
+
+
+DIJKSTRA'S ALGORITHM – Trace (source = Edinburgh)
+
+
+Initialise:
+  dist[Edinburgh] = 0
+  dist[all others] = ∞
+  Priority Queue (min-heap by distance):
+    (0, Edinburgh)
+
+ Iteration 1 
+  Extract min: Edinburgh (dist = 0)
+  Relax neighbours:
+    Stirling : 0 + 36 = 36  < ∞  → dist[Stirling] = 36,  prev = Edinburgh
+    Falkirk  : 0 + 24 = 24  < ∞  → dist[Falkirk]  = 24,  prev = Edinburgh
+    Glasgow  : 0 + 46 = 46  < ∞  → dist[Glasgow]  = 46,  prev = Edinburgh
+  PQ: (24,Falkirk), (36,Stirling), (46,Glasgow)
+
+ Iteration 2 
+  Extract min: Falkirk (dist = 24)
+  Relax neighbours:
+    Edinburgh : 24 + 24 = 48  > 0  → no update
+    Stirling  : 24 + 14 = 38  > 36 → no update
+    Glasgow   : 24 + 23 = 47  > 46 → no update
+  PQ: (36,Stirling), (46,Glasgow)
+
+ Iteration 3 
+  Extract min: Stirling (dist = 36)
+  Relax neighbours:
+    Edinburgh : 36 + 36 = 72  > 0  → no update
+    Perth     : 36 + 35 = 71  < ∞  → dist[Perth]   = 71,  prev = Stirling
+    Falkirk   : 36 + 14 = 50  > 24 → no update
+    Glasgow   : 36 + 28 = 64  > 46 → no update
+  PQ: (46,Glasgow), (71,Perth)
+
+ Iteration 4 
+  Extract min: Glasgow (dist = 46)
+  Relax neighbours:
+    Edinburgh : 46 + 46 = 92  > 0   → no update
+    Stirling  : 46 + 28 = 74  > 36  → no update
+    Falkirk   : 46 + 23 = 69  > 24  → no update
+  PQ: (71,Perth)
+
+Iteration 5 
+  Extract min: Perth (dist = 71)
+  Relax neighbours:
+    Stirling : 71 + 35 = 106  > 36  → no update
+    Dundee   : 71 + 22 =  93  < ∞   → dist[Dundee] = 93,  prev = Perth
+  PQ: (93,Dundee)
+
+ Iteration 6 
+  Extract min: Dundee (dist = 93)
+  Dundee is the destination → STOP
+
+
+RESULT
+
+
+Shortest distance: Edinburgh → Dundee = 93 miles
+
+Shortest path (traced back via prev[]):
+  Edinburgh → Stirling → Perth → Dundee
+
+Breakdown:
+  Edinburgh → Stirling :  36 miles
+  Stirling  → Perth    :  35 miles
+  Perth     → Dundee   :  22 miles
+  ─────────────────────────────────
+  Total                :  93 miles
+
+Final distance table:
+  City         Shortest dist from Edinburgh  Via
+  Edinburgh    0                             –
+  Falkirk      24                            Edinburgh
+  Stirling     36                            Edinburgh
+  Glasgow      46                            Edinburgh
+  Perth        71                            Stirling
+  Dundee       93                            Perth
+
+Conclusion:
+  The shortest route from Edinburgh to Dundee is 93 miles,
+  travelling via Stirling and Perth.  A direct Edinburgh–Falkirk
+  detour does not improve the total distance to Dundee because
+  Falkirk offers no onward connection towards Perth/Dundee
+  that is shorter than the direct Edinburgh–Stirling–Perth chain.
